@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Converter</title>
+  <style>
+    #loader {
+      display: none;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Audio Converter</h1>
+  <form id="uploadForm">
+    <input type="file" accept="audio/*" id="audioFile" required>
+    <button type="button" onclick="convertAudio()">Convert to MP3</button>
+  </form>
+  <div id="loader">Converting...</div>
+  <script>
+    async function convertAudio() {
+      const audioFile = document.getElementById('audioFile').files[0];
+      if (!audioFile) return;
+
+      const loader = document.getElementById('loader');
+      loader.style.display = 'block';
+
+      const formData = new FormData();
+      formData.append('audioData', audioFile);
+
+      try {
+        const response = await fetch('/convert', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ audioData: formData }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('Conversion successful! Check the "public" folder for the output.mp3 file.');
+        } else {
+          alert(`Conversion failed: ${result.error}`);
+        }
+      } catch (error) {
+        alert(`An error occurred during conversion: ${error.message}`);
+      } finally {
+        loader.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>
